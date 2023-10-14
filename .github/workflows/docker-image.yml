@@ -25,4 +25,4 @@ jobs:
       run: |
         docker login ghcr.io -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: docker push cpp base
-      run: docker push graugans/cpp:base
+      run: docker push ghcr.io/graugans/cpp:base
