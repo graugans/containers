@@ -39,9 +39,6 @@ RUN \
                           fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
-# bring in latest cmake
-RUN wget -qO- "https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local
-
 # bring in latest clang toolchain
 # Please check https://github.com/llvm/llvm-project/issues/62475 for the details
 RUN set -ex &&\
@@ -70,6 +67,8 @@ RUN set -ex &&\
                           libpolly-16-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# bring in latest cmake
+RUN wget -qO- "https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr
 
 # set user to start and working directory
 USER $USERNAME
