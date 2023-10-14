@@ -125,6 +125,20 @@ RUN cd /usr/src && git clone --depth 1 --branch v2.3.2 https://github.com/CLIUti
     && cd /usr/src \
     && rm -rf cli11
 
+# Install the Nlohman JSON lib
+RUN cd /usr/src && git clone --depth 1 --branch v3.11.2 https://github.com/nlohmann/json.git\
+    && cd json \
+    && mkdir build \
+    && cd build \
+    && cmake -DBUILD_TESTING=OFF \
+             -D CMAKE_INSTALL_PREFIX=/usr \
+             -GNinja  .. \
+    && ninja \
+    && ninja install \
+    && cd /usr/src \
+    && rm -rf json
+
+
 
 # set user to start and working directory
 USER $USERNAME
