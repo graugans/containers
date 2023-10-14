@@ -83,3 +83,6 @@ RUN wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCo
 # bring in a nice shell prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y\
     && echo 'eval "$(starship init bash)"' >> /home/dev/.bashrc
+
+# configure the git default branch name
+RUN git config --global init.defaultBranch main
