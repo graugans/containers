@@ -112,6 +112,20 @@ RUN cd /usr/src && git clone --depth 1 --branch v3.4.0 https://github.com/catcho
     && cd /usr/src \
     && rm -rf catch2
 
+# Install the CLI11 lib
+RUN cd /usr/src && git clone --depth 1 --branch v2.3.2 https://github.com/CLIUtils/CLI11.git cli11 \
+    && cd cli11 \
+    && mkdir build \
+    && cd build \
+    && cmake -DCLI11_BUILD_TESTS=OFF \
+             -D CMAKE_INSTALL_PREFIX=/usr \
+             -GNinja  .. \
+    && ninja \
+    && ninja install \
+    && cd /usr/src \
+    && rm -rf cli11
+
+
 # set user to start and working directory
 USER $USERNAME
 WORKDIR /home/$USERNAME
