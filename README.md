@@ -9,6 +9,10 @@ The containers are meant to be used e.g. as **VSCode Devcontainers** (using [Git
 ## C++ Base Container
 The [C++ base contaier](dockerfiles/cpp_base) defines a container which can be used for C++ programming tasks.
 
+```sh
+docker run -it ghcr.io/graugans/cpp:base
+```
+
 ## License
 
 This project is licensed under the [MIT license](LICENSE).
