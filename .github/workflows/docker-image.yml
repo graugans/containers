@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the base Docker
       working-directory: ./dockerfiles/cpp_base
-      run: docker build . --file Dockerfile --tag graugans/cpp:base
+      run: docker build . --file Dockerfile --tag ghcr.io/graugans/cpp:base
     - name: docker login
 
       env:
