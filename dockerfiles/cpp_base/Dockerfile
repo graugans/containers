@@ -70,6 +70,48 @@ RUN set -ex &&\
 # bring in latest cmake
 RUN wget -qO- "https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr
 
+# Install the {fmt} lib
+RUN cd /usr/src && git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git \
+    && cd fmt \
+    && mkdir build \
+    && cd build \
+    && cmake -DBUILD_SHARED_LIBS=TRUE \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
+            -D CMAKE_INSTALL_PREFIX=/usr \
+            -GNinja  .. \
+    && ninja \
+    && ninja install \
+    && cd /usr/src \
+    && rm -rf fmt
+
+# Install the spdlog lib
+RUN cd /usr/src && git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git \
+    && cd spdlog \
+    && mkdir build \
+    && cd build \
+    && cmake -DSPDLOG_FMT_EXTERNAL=ON \
+             -DBUILD_SHARED_LIBS=ON \
+             -DSPDLOG_BUILD_PIC=ON \
+             -D CMAKE_INSTALL_PREFIX=/usr \
+             -GNinja  .. \
+    && ninja \
+    && ninja install \
+    && cd /usr/src \
+    && rm -rf spdlog
+
+# Install the Catch2 testing framework
+RUN cd /usr/src && git clone --depth 1 --branch v3.4.0 https://github.com/catchorg/Catch2.git catch2\
+    && cd catch2 \
+    && mkdir build \
+    && cd build \
+    && cmake -DBUILD_TESTING=OFF \
+             -D CMAKE_INSTALL_PREFIX=/usr \
+             -GNinja  .. \
+    && ninja \
+    && ninja install \
+    && cd /usr/src \
+    && rm -rf catch2
+
 # set user to start and working directory
 USER $USERNAME
 WORKDIR /home/$USERNAME
