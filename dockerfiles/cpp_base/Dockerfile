@@ -15,7 +15,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -s /bin/bash -m $USERNAME \
     #
     # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
     && apt-get update \
@@ -39,6 +39,8 @@ RUN \
                           gnupg \
                           unzip \
                           fontconfig \
+                          fonts-noto \
+                          bash-completion \
     && rm -rf /var/lib/apt/lists/*
 
 # bring in latest clang toolchain
@@ -146,14 +148,11 @@ RUN cd /usr/src && git clone --depth 1 --branch v3.11.2 https://github.com/nlohm
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
-RUN wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip \
-    && unzip FiraCode.zip -d ~/.fonts && rm FiraCode.zip \
-    && fc-cache -fv
-
-
 # bring in a nice shell prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y\
-    && echo 'eval "$(starship init bash)"' >> /home/dev/.bashrc
+    && echo 'eval "$(starship init bash)"' >> /home/dev/.bashrc \
+    && mkdir ~/.config \
+    && starship preset no-runtime-versions -o ~/.config/starship.toml
 
 # configure the git default branch name
 RUN git config --global init.defaultBranch main
