@@ -29,7 +29,9 @@ RUN \
     && apt-get install -y git \
                           build-essential \
                           gdb \
+                          lldb \
                           ninja-build \
+                          ccache \
                           wget \
                           curl \
                           lsb-release \
