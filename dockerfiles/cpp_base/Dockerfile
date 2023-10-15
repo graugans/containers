@@ -147,10 +147,8 @@ USER $USERNAME
 WORKDIR /home/$USERNAME
 
 # bring in a nice shell prompt
-RUN curl -sS https://starship.rs/install.sh | sh -s -- -y\
-    && echo 'eval "$(starship init bash)"' >> /home/dev/.bashrc \
-    && mkdir ~/.config \
-    && starship preset no-runtime-versions -o ~/.config/starship.toml
+COPY ./prompt.sh /home/dev/.prompt
+RUN echo 'source /home/dev/.prompt' >> /home/dev/.bashrc
 
 # configure the git default branch name
 RUN git config --global init.defaultBranch main
