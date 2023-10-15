@@ -41,7 +41,15 @@ RUN \
                           fontconfig \
                           fonts-noto \
                           bash-completion \
+                          locales \
     && rm -rf /var/lib/apt/lists/*
+
+# set Locale to en_US.UTF-8
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
 
 # bring in latest clang toolchain
 # Please check https://github.com/llvm/llvm-project/issues/62475 for the details
