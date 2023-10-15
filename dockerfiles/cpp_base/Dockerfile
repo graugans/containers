@@ -85,68 +85,58 @@ RUN wget -qO- "https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.tar.gz" |
 # Install the {fmt} lib
 RUN cd /usr/src && git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git \
     && cd fmt \
-    && mkdir build \
-    && cd build \
-    && cmake -DBUILD_SHARED_LIBS=TRUE \
+    && cmake -B build -DBUILD_SHARED_LIBS=TRUE \
             -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
             -D CMAKE_INSTALL_PREFIX=/usr \
-            -GNinja  .. \
-    && ninja \
-    && ninja install \
+            -GNinja \
+    && cmake --build build \
+    && cmake --install build \
     && cd /usr/src \
     && rm -rf fmt
 
 # Install the spdlog lib
 RUN cd /usr/src && git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git \
     && cd spdlog \
-    && mkdir build \
-    && cd build \
-    && cmake -DSPDLOG_FMT_EXTERNAL=ON \
+    && cmake -B build -DSPDLOG_FMT_EXTERNAL=ON \
              -DBUILD_SHARED_LIBS=ON \
              -DSPDLOG_BUILD_PIC=ON \
              -D CMAKE_INSTALL_PREFIX=/usr \
-             -GNinja  .. \
-    && ninja \
-    && ninja install \
+             -GNinja \
+    && cmake --build build \
+    && cmake --install build \
     && cd /usr/src \
     && rm -rf spdlog
 
 # Install the Catch2 testing framework
 RUN cd /usr/src && git clone --depth 1 --branch v3.4.0 https://github.com/catchorg/Catch2.git catch2\
     && cd catch2 \
-    && mkdir build \
-    && cd build \
-    && cmake -DBUILD_TESTING=OFF \
+    && cmake -B build -DBUILD_TESTING=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \
-             -GNinja  .. \
-    && ninja \
-    && ninja install \
+             -GNinja \
+    && cmake --build build \
+    && cmake --install build \
     && cd /usr/src \
     && rm -rf catch2
 
 # Install the CLI11 lib
 RUN cd /usr/src && git clone --depth 1 --branch v2.3.2 https://github.com/CLIUtils/CLI11.git cli11 \
     && cd cli11 \
-    && mkdir build \
-    && cd build \
-    && cmake -DCLI11_BUILD_TESTS=OFF \
+    && cmake -B build -DCLI11_BUILD_TESTS=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \
-             -GNinja  .. \
-    && ninja \
-    && ninja install \
+             -GNinja \
+    && cmake --build build \
+    && cmake --install build \
     && cd /usr/src \
     && rm -rf cli11
 
 # Install the Nlohman JSON lib
 RUN cd /usr/src && git clone --depth 1 --branch v3.11.2 https://github.com/nlohmann/json.git\
     && cd json \
-    && mkdir build \
-    && cd build \
-    && cmake -DBUILD_TESTING=OFF \
+    && cmake -B build -DBUILD_TESTING=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \
-             -GNinja  .. \
-    && ninja \
-    && ninja install \
+             -GNinja \
+    && cmake --build build \
+    && cmake --install build \
     && cd /usr/src \
     && rm -rf json
 
