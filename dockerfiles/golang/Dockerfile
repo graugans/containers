@@ -69,5 +69,12 @@ RUN go install github.com/cweill/gotests/gotests@latest \
     && go install -v golang.org/x/tools/cmd/godoc@latest \
     && go install github.com/godoctor/godoctor@latest
 
+
+# Install bash autocompletion for some go tools
+COPY ./bash_completion.sh /home/dev/.bash_completion
+RUN mkdir  /home/dev/.bash_completion.d \
+    && echo 'source /home/dev/.bash_completion' >> /home/dev/.bashrc \
+    && cobra-cli completion bash > /home/dev/.bash_completion.d/cobra-cli
+
 # configure the git default branch name
 RUN git config --global init.defaultBranch main
