@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+# gem "rails"
+gem 'rake'
+gem 'ttfunk'
+gem 'asciidoctor'
+gem 'asciidoctor-epub3'
+gem 'asciidoctor-pdf'
+gem 'asciidoctor-diagram'
+
+gem 'json'
+gem 'awesome_print'
+gem 'coderay'
+gem 'pygments.rb'
+gem 'thread_safe'
+gem 'epubcheck'
