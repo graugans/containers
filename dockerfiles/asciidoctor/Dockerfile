@@ -15,6 +15,7 @@ RUN apt-get -y update \
                           ruby-bundler \
                           python3-blockdiag \
                           build-essential \
+                          graphviz \
     && rm -rf /var/lib/apt/lists/*
 
 
