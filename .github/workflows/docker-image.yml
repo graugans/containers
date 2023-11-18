@@ -31,7 +31,12 @@ jobs:
     - name: Build the base Go Docker
       working-directory: ./dockerfiles/golang
       run: docker build . --file Dockerfile --tag ghcr.io/graugans/golang
+    - name: Build the Asciidoctor Docker
+      working-directory: ./dockerfiles/asciidoctor
+      run: docker build . --file Dockerfile --tag ghcr.io/graugans/asciidoctor
     - name: docker push cpp base
       run: docker push ghcr.io/graugans/cpp
-    - name: docker push golang base
+    - name: docker push Go
       run: docker push ghcr.io/graugans/golang
+    - name: docker push Asciidoctor
+      run: docker push ghcr.io/graugans/asciidoctor
