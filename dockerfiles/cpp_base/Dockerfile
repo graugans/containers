@@ -42,6 +42,7 @@ RUN \
                           fonts-noto \
                           bash-completion \
                           locales \
+                          libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # set Locale to en_US.UTF-8
