@@ -16,8 +16,10 @@ RUN apt-get -y update \
                           python3-blockdiag \
                           build-essential \
                           graphviz \
+                          npm \
     && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g @mermaid-js/mermaid-cli
 
 # set user to start and working directory
 USER $USERNAME
