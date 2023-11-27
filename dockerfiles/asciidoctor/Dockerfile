@@ -19,6 +19,7 @@ RUN apt-get -y update \
                           npm \
     && rm -rf /var/lib/apt/lists/*
 
+# Install the Mermaid CLI
 RUN npm install -g @mermaid-js/mermaid-cli
 
 # set user to start and working directory
