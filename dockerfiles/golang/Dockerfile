@@ -67,7 +67,11 @@ RUN go install github.com/cweill/gotests/gotests@latest \
     && go install github.com/ramya-rao-a/go-outline@latest \
     && go install github.com/spf13/cobra-cli@latest \
     && go install -v golang.org/x/tools/cmd/godoc@latest \
-    && go install github.com/godoctor/godoctor@latest
+    && go install github.com/godoctor/godoctor@latest \
+    && go install github.com/goreleaser/goreleaser@latest \
+    && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+
+
 
 
 # Install bash autocompletion for some go tools
