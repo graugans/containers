@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2023 Christian Ege
+# Copyright (c) 2024 Christian Ege
 # Copyright (c) 2023 Benjamin Wilking
 
-FROM golang:1.21-bookworm
+FROM golang:1.22-bookworm
 
 ARG USERNAME=dev
 ARG USER_UID=1000
@@ -37,6 +37,7 @@ RUN \
                           fonts-noto \
                           bash-completion \
                           locales \
+                          jq \
     && rm -rf /var/lib/apt/lists/*
 
 # set Locale to en_US.UTF-8
