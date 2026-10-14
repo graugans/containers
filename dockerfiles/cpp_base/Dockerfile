@@ -1,9 +1,13 @@
 # SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2023 Christian Ege
+# Copyright (c) 2026 Christian Ege
 # Copyright (c) 2023 Benjamin Wilking
+ARG DEBIAN_CODENAME=trixie
 
-FROM debian:bookworm-slim
+FROM debian:${DEBIAN_CODENAME}-slim
+ARG DEBIAN_CODENAME
+ARG LLVM_VERSION=22
+ARG CMAKE_VERSION=4.4.0
 
 ARG USERNAME=dev
 ARG USER_UID=1000
@@ -35,7 +39,6 @@ RUN \
                           wget \
                           curl \
                           lsb-release \
-                          software-properties-common \
                           gnupg \
                           unzip \
                           fontconfig \
@@ -48,43 +51,46 @@ RUN \
 # set Locale to en_US.UTF-8
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
 
 # bring in latest clang toolchain
 # Please check https://github.com/llvm/llvm-project/issues/62475 for the details
-RUN set -ex &&\
-    echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-16 main" > /etc/apt/sources.list.d/apt.llvm.org.list \
-    && wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key |  tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc \
-    && apt update \
-    && apt-get install -y clang-16 \
-                          lldb-16 \
-                          lld-16 \
-                          clangd-16 \
-                          clang-tidy-16 \
-                          clang-format-16 \
-                          clang-tools-16 \
-                          llvm-16-dev \
-                          lld-16 \
-                          lldb-16 \
-                          llvm-16-tools \
-                          libomp-16-dev \
-                          libc++-16-dev \
-                          libc++abi-16-dev \
-                          libclang-common-16-dev \
-                          libclang-16-dev \
-                          libclang-cpp16-dev \
-                          libunwind-16-dev \
-                          libclang-rt-16-dev \
-                          libpolly-16-dev \
+# bring in latest clang toolchain
+RUN set -eux; \
+    echo "deb http://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-${LLVM_VERSION} main" > /etc/apt/sources.list.d/apt.llvm.org.list; \
+    wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc; \
+    apt update \
+    && apt-get install -y clang-${LLVM_VERSION} \
+                          lldb-${LLVM_VERSION} \
+                          lld-${LLVM_VERSION} \
+                          clangd-${LLVM_VERSION} \
+                          clang-tidy-${LLVM_VERSION} \
+                          clang-format-${LLVM_VERSION} \
+                          clang-tools-${LLVM_VERSION} \
+                          llvm-${LLVM_VERSION}-dev \
+                          lld-${LLVM_VERSION} \
+                          lldb-${LLVM_VERSION} \
+                          llvm-${LLVM_VERSION}-tools \
+                          libomp-${LLVM_VERSION}-dev \
+                          libc++-${LLVM_VERSION}-dev \
+                          libc++abi-${LLVM_VERSION}-dev \
+                          libclang-common-${LLVM_VERSION}-dev \
+                          libclang-${LLVM_VERSION}-dev \
+                          libclang-cpp${LLVM_VERSION}-dev \
+                          libunwind-${LLVM_VERSION}-dev \
+                          libclang-rt-${LLVM_VERSION}-dev \
+                          libpolly-${LLVM_VERSION}-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # bring in latest cmake
-RUN wget -qO- "https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr
+RUN set -eux; \
+    CMAKE_SERIES="${CMAKE_VERSION%.*}"; \
+    wget -qO- "https://cmake.org/files/v${CMAKE_SERIES}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr
 
 # Install the {fmt} lib
-RUN cd /usr/src && git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib/fmt.git \
+RUN cd /usr/src && git clone --depth 1 --branch 12.2.0 https://github.com/fmtlib/fmt.git \
     && cd fmt \
     && cmake -B build -DBUILD_SHARED_LIBS=TRUE \
             -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
@@ -96,7 +102,7 @@ RUN cd /usr/src && git clone --depth 1 --branch 10.1.1 https://github.com/fmtlib
     && rm -rf fmt
 
 # Install the spdlog lib
-RUN cd /usr/src && git clone --depth 1 --branch v1.12.0 https://github.com/gabime/spdlog.git \
+RUN cd /usr/src && git clone --depth 1 --branch v1.17.0 https://github.com/gabime/spdlog.git \
     && cd spdlog \
     && cmake -B build -DSPDLOG_FMT_EXTERNAL=ON \
              -DBUILD_SHARED_LIBS=ON \
@@ -109,7 +115,7 @@ RUN cd /usr/src && git clone --depth 1 --branch v1.12.0 https://github.com/gabim
     && rm -rf spdlog
 
 # Install the Catch2 testing framework
-RUN cd /usr/src && git clone --depth 1 --branch v3.4.0 https://github.com/catchorg/Catch2.git catch2\
+RUN cd /usr/src && git clone --depth 1 --branch v3.16.1 https://github.com/catchorg/Catch2.git catch2\
     && cd catch2 \
     && cmake -B build -DBUILD_TESTING=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \
@@ -120,7 +126,7 @@ RUN cd /usr/src && git clone --depth 1 --branch v3.4.0 https://github.com/catcho
     && rm -rf catch2
 
 # Install the CLI11 lib
-RUN cd /usr/src && git clone --depth 1 --branch v2.3.2 https://github.com/CLIUtils/CLI11.git cli11 \
+RUN cd /usr/src && git clone --depth 1 --branch v2.7.2 https://github.com/CLIUtils/CLI11.git cli11 \
     && cd cli11 \
     && cmake -B build -DCLI11_BUILD_TESTS=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \
@@ -131,7 +137,7 @@ RUN cd /usr/src && git clone --depth 1 --branch v2.3.2 https://github.com/CLIUti
     && rm -rf cli11
 
 # Install the Nlohman JSON lib
-RUN cd /usr/src && git clone --depth 1 --branch v3.11.2 https://github.com/nlohmann/json.git\
+RUN cd /usr/src && git clone --depth 1 --branch v3.12.0 https://github.com/nlohmann/json.git\
     && cd json \
     && cmake -B build -DBUILD_TESTING=OFF \
              -D CMAKE_INSTALL_PREFIX=/usr \

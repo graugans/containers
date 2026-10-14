@@ -2,8 +2,7 @@
 #
 # Copyright (c) 2023 Christian Ege
 # Copyright (c) 2023 Benjamin Wilking
-
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 ARG USERNAME=dev
 ARG USER_UID=1000
