@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2024 Christian Ege
+# Copyright (c) 2026 Christian Ege
 # Copyright (c) 2023 Benjamin Wilking
 
-FROM golang:1.22-bookworm
+FROM golang:1.26-trixie
 
 ARG USERNAME=dev
 ARG USER_UID=1000
@@ -30,7 +30,6 @@ RUN \
                           wget \
                           curl \
                           lsb-release \
-                          software-properties-common \
                           gnupg \
                           unzip \
                           fontconfig \
@@ -43,9 +42,9 @@ RUN \
 # set Locale to en_US.UTF-8
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
 
 # set user to start and working directory
 USER $USERNAME
@@ -58,19 +57,10 @@ RUN echo 'export PATH=/usr/local/go/bin:$PATH' >> /home/dev/.bashrc
 
 # Install Go Tools
 #  gotests
-RUN go install github.com/cweill/gotests/gotests@latest \
-    && go install github.com/fatih/gomodifytags@latest \
-    && go install github.com/josharian/impl@latest \
-    && go install github.com/haya14busa/goplay/cmd/goplay@latest \
-    && go install github.com/go-delve/delve/cmd/dlv@latest \
-    && go install honnef.co/go/tools/cmd/staticcheck@latest \
-    && go install golang.org/x/tools/gopls@latest \
-    && go install github.com/ramya-rao-a/go-outline@latest \
-    && go install github.com/spf13/cobra-cli@latest \
-    && go install -v golang.org/x/tools/cmd/godoc@latest \
-    && go install github.com/godoctor/godoctor@latest \
-    && go install github.com/goreleaser/goreleaser@latest \
-    && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+RUN go install github.com/spf13/cobra-cli@latest \
+    && curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.14.0
+
+
 
 
 
