@@ -14,9 +14,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      CPP_IMAGE_VERSION: 2.0.0
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: docker login
       run: |
         echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
@@ -27,7 +29,10 @@ jobs:
       run: docker push ghcr.io/graugans/base
     - name: Build the base C++ Docker
       working-directory: ./dockerfiles/cpp_base
-      run: docker build . --file Dockerfile --tag ghcr.io/graugans/cpp
+      run: |
+        docker build . --file Dockerfile \
+          --tag ghcr.io/graugans/cpp \
+          --tag ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
     - name: Build the base Go Docker
       working-directory: ./dockerfiles/golang
       run: docker build . --file Dockerfile --tag ghcr.io/graugans/golang
@@ -35,7 +40,9 @@ jobs:
       working-directory: ./dockerfiles/asciidoctor
       run: docker build . --file Dockerfile --tag ghcr.io/graugans/asciidoctor
     - name: docker push cpp base
-      run: docker push ghcr.io/graugans/cpp
+      run: |
+        docker push ghcr.io/graugans/cpp
+        docker push ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
     - name: docker push Go
       run: docker push ghcr.io/graugans/golang
     - name: docker push Asciidoctor
