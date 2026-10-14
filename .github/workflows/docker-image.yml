@@ -11,17 +11,17 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       CPP_IMAGE_VERSION: 2.0.0
 
     steps:
     - uses: actions/checkout@v4
     - name: docker login
-      env:
-        DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: |
-        docker login ghcr.io -u $DOCKER_USER -p $DOCKER_PASSWORD
+        echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
     - name: Build the base Docker
       working-directory: ./dockerfiles/base
       run: docker build . --file Dockerfile --tag ghcr.io/graugans/base
