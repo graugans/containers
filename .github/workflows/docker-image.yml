@@ -16,9 +16,6 @@ jobs:
       packages: write
     env:
       CPP_IMAGE_VERSION: 2.0.0
-    permissions:
-      contents: read
-      packages: write
 
     steps:
     - uses: actions/checkout@v4
