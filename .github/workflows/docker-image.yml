@@ -16,6 +16,7 @@ jobs:
       packages: write
     env:
       CPP_IMAGE_VERSION: 2.0.0
+      GO_IMAGE_VERSION: 2.0.0
 
     steps:
     - uses: actions/checkout@v4
@@ -35,15 +36,22 @@ jobs:
           --tag ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
     - name: Build the base Go Docker
       working-directory: ./dockerfiles/golang
-      run: docker build . --file Dockerfile --tag ghcr.io/graugans/golang
+      run: |
+        docker build . --file Dockerfile \
+          --tag ghcr.io/graugans/golang \
+          --tag ghcr.io/graugans/golang:${GO_IMAGE_VERSION} 
     - name: Build the Asciidoctor Docker
       working-directory: ./dockerfiles/asciidoctor
-      run: docker build . --file Dockerfile --tag ghcr.io/graugans/asciidoctor
+      run: |
+        docker build . --file Dockerfile \
+          --tag ghcr.io/graugans/asciidoctor
     - name: docker push cpp base
       run: |
         docker push ghcr.io/graugans/cpp
         docker push ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
     - name: docker push Go
-      run: docker push ghcr.io/graugans/golang
+      run: |
+        docker push ghcr.io/graugans/golang
+        docker push ghcr.io/graugans/golang:${GO_IMAGE_VERSION}
     - name: docker push Asciidoctor
       run: docker push ghcr.io/graugans/asciidoctor
