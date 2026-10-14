@@ -29,7 +29,6 @@ RUN \
                           wget \
                           curl \
                           lsb-release \
-                          software-properties-common \
                           gnupg \
                           unzip \
                           fontconfig \
