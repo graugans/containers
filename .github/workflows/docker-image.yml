@@ -17,6 +17,7 @@ jobs:
     env:
       CPP_IMAGE_VERSION: 2.0.0
       GO_IMAGE_VERSION: 2.0.0
+      STM32_IMAGE_VERSION: 1.0.0
 
     steps:
     - uses: actions/checkout@v4
@@ -45,6 +46,13 @@ jobs:
       run: |
         docker build . --file Dockerfile \
           --tag ghcr.io/graugans/asciidoctor
+    - name: Build the STM32F103 Docker
+      working-directory: ./dockerfiles/stm32f103
+      run: |
+        docker build . --file Dockerfile \
+          --build-arg CPP_IMAGE_VERSION=${CPP_IMAGE_VERSION} \
+          --tag ghcr.io/graugans/stm32f103 \
+          --tag ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
     - name: docker push cpp base
       run: |
         docker push ghcr.io/graugans/cpp
@@ -55,3 +63,7 @@ jobs:
         docker push ghcr.io/graugans/golang:${GO_IMAGE_VERSION}
     - name: docker push Asciidoctor
       run: docker push ghcr.io/graugans/asciidoctor
+    - name: docker push STM32F103
+      run: |
+        docker push ghcr.io/graugans/stm32f103
+        docker push ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
