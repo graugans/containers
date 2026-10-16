@@ -6,70 +6,110 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  CPP_IMAGE_VERSION: 2.0.0
+  GO_IMAGE_VERSION: 2.0.0
+  STM32_IMAGE_VERSION: 1.0.0
+
 jobs:
-
   build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
-    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build base image
+        working-directory: ./dockerfiles/base
+        run: |
+          docker build . --file Dockerfile --tag ghcr.io/graugans/base
+          mkdir -p /tmp/docker-images
+          docker save ghcr.io/graugans/base -o /tmp/docker-images/base.tar
+
+      - name: Build C++ image
+        working-directory: ./dockerfiles/cpp_base
+        run: |
+          docker build . --file Dockerfile \
+            --tag ghcr.io/graugans/cpp \
+            --tag ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
+          docker save ghcr.io/graugans/cpp -o /tmp/docker-images/cpp.tar
+          docker save ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION} -o /tmp/docker-images/cpp-version.tar
+
+      - name: Build Go image
+        working-directory: ./dockerfiles/golang
+        run: |
+          docker build . --file Dockerfile \
+            --tag ghcr.io/graugans/golang \
+            --tag ghcr.io/graugans/golang:${GO_IMAGE_VERSION}
+          docker save ghcr.io/graugans/golang -o /tmp/docker-images/golang.tar
+          docker save ghcr.io/graugans/golang:${GO_IMAGE_VERSION} -o /tmp/docker-images/golang-version.tar
+
+      - name: Build Asciidoctor image
+        working-directory: ./dockerfiles/asciidoctor
+        run: |
+          docker build . --file Dockerfile --tag ghcr.io/graugans/asciidoctor
+          docker save ghcr.io/graugans/asciidoctor -o /tmp/docker-images/asciidoctor.tar
+
+      - name: Build STM32F103 image
+        working-directory: ./dockerfiles/stm32f103
+        run: |
+          docker build . --file Dockerfile \
+            --build-arg CPP_IMAGE_VERSION=${CPP_IMAGE_VERSION} \
+            --tag ghcr.io/graugans/stm32f103 \
+            --tag ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
+          docker save ghcr.io/graugans/stm32f103 -o /tmp/docker-images/stm32f103.tar
+          docker save ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION} -o /tmp/docker-images/stm32f103-version.tar
+
+      - name: Upload built Docker images
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp/docker-images/*.tar
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
-    env:
-      CPP_IMAGE_VERSION: 2.0.0
-      GO_IMAGE_VERSION: 2.0.0
-      STM32_IMAGE_VERSION: 1.0.0
 
     steps:
-    - uses: actions/checkout@v5
-    - name: docker login
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-    - name: Build the base Docker
-      working-directory: ./dockerfiles/base
-      run: docker build . --file Dockerfile --tag ghcr.io/graugans/base
-    - name: docker push base
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: docker push ghcr.io/graugans/base
-    - name: Build the base C++ Docker
-      working-directory: ./dockerfiles/cpp_base
-      run: |
-        docker build . --file Dockerfile \
-          --tag ghcr.io/graugans/cpp \
-          --tag ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
-    - name: Build the base Go Docker
-      working-directory: ./dockerfiles/golang
-      run: |
-        docker build . --file Dockerfile \
-          --tag ghcr.io/graugans/golang \
-          --tag ghcr.io/graugans/golang:${GO_IMAGE_VERSION} 
-    - name: Build the Asciidoctor Docker
-      working-directory: ./dockerfiles/asciidoctor
-      run: |
-        docker build . --file Dockerfile \
-          --tag ghcr.io/graugans/asciidoctor
-    - name: Build the STM32F103 Docker
-      working-directory: ./dockerfiles/stm32f103
-      run: |
-        docker build . --file Dockerfile \
-          --build-arg CPP_IMAGE_VERSION=${CPP_IMAGE_VERSION} \
-          --tag ghcr.io/graugans/stm32f103 \
-          --tag ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
-    - name: docker push cpp base
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        docker push ghcr.io/graugans/cpp
-        docker push ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
-    - name: docker push Go
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        docker push ghcr.io/graugans/golang
-        docker push ghcr.io/graugans/golang:${GO_IMAGE_VERSION}
-    - name: docker push Asciidoctor
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: docker push ghcr.io/graugans/asciidoctor
-    - name: docker push STM32F103
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: |
-        docker push ghcr.io/graugans/stm32f103
-        docker push ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
+      - name: Download built Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: /tmp/docker-images
+
+      - name: Load Docker images
+        run: |
+          for tar in /tmp/docker-images/*.tar; do
+            docker load --input "$tar"
+          done
+
+      - name: Log in to GHCR
+        run: |
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push base image
+        run: docker push ghcr.io/graugans/base
+
+      - name: Push C++ image
+        run: |
+          docker push ghcr.io/graugans/cpp
+          docker push ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
+
+      - name: Push Go image
+        run: |
+          docker push ghcr.io/graugans/golang
+          docker push ghcr.io/graugans/golang:${GO_IMAGE_VERSION}
+
+      - name: Push Asciidoctor image
+        run: docker push ghcr.io/graugans/asciidoctor
+
+      - name: Push STM32F103 image
+        run: |
+          docker push ghcr.io/graugans/stm32f103
+          docker push ghcr.io/graugans/stm32f103:${STM32_IMAGE_VERSION}
