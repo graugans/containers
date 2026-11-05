@@ -6,6 +6,7 @@ ARG CPP_IMAGE_VERSION=2.0.0
 FROM ghcr.io/graugans/cpp:${CPP_IMAGE_VERSION}
 
 ARG USERNAME=dev
+ARG RENODE_VERSION=1.16.0
 
 USER root
 
@@ -23,7 +24,14 @@ RUN apt-get update \
         python3 \
         python3-pip \
         python3-venv \
+        wget \
     && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz \
+    && tar xf renode-${RENODE_VERSION}.linux-portable.tar.gz -C /opt \
+    && mv /opt/renode_${RENODE_VERSION}_portable /opt/renode \
+    && ln -s /opt/renode/renode /usr/local/bin/renode \
+    && rm renode-*.tar.gz
 
 # provide a ready-to-use CMake toolchain for STM32F103 targets
 RUN mkdir -p /opt/toolchains \
