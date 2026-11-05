@@ -29,7 +29,7 @@ RUN apt-get update \
 
 RUN wget -q https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz \
     && tar xf renode-${RENODE_VERSION}.linux-portable.tar.gz -C /opt \
-    && mv /opt/renode_${RENODE_VERSION}_portable /opt/renode \
+    && mv /opt/renode_${RENODE_VERSION}-portable /opt/renode \
     && ln -s /opt/renode/renode /usr/local/bin/renode \
     && rm renode-*.tar.gz
 
