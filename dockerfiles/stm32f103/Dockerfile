@@ -25,6 +25,7 @@ RUN apt-get update \
         python3-pip \
         python3-venv \
         wget \
+        file \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz \
